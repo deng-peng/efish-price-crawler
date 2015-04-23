@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace PriceCrawler
@@ -29,12 +30,27 @@ namespace PriceCrawler
 
         private void btnStart2_Click(object sender, EventArgs e)
         {
-
+            ThreadPool.QueueUserWorkItem(delegate { EfishStart(); });
         }
 
         private void btnStart1_Click(object sender, EventArgs e)
         {
-
+            ThreadPool.QueueUserWorkItem(delegate { CfmStart(); });
         }
+
     }
+
+}
+
+public class Market
+{
+    public int Mid { get; set; }
+
+    public string Mname { get; set; }
+
+    public string Mdate { get; set; }
+
+    public string Price { get; set; }
+
+    //public string CrawlTime { get; set; }
 }
