@@ -1,6 +1,6 @@
 ﻿namespace PriceCrawler
 {
-    partial class Form1
+    partial class PriceCrawlerForm
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -34,15 +34,15 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.label3 = new System.Windows.Forms.Label();
-            this.savePath1 = new System.Windows.Forms.TextBox();
-            this.btnStart1 = new System.Windows.Forms.Button();
             this.infobox1 = new System.Windows.Forms.RichTextBox();
+            this.btnStart1 = new System.Windows.Forms.Button();
+            this.savePath1 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.infobox2 = new System.Windows.Forms.RichTextBox();
             this.btnStart2 = new System.Windows.Forms.Button();
             this.savePath2 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.infobox2 = new System.Windows.Forms.RichTextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -54,6 +54,7 @@
             this.dpStart.Name = "dpStart";
             this.dpStart.Size = new System.Drawing.Size(171, 20);
             this.dpStart.TabIndex = 0;
+            this.dpStart.Value = new System.DateTime(2015, 4, 24, 8, 47, 18, 0);
             // 
             // dpEnd
             // 
@@ -104,6 +105,40 @@
             this.tabPage1.Text = "中国渔市";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // infobox1
+            // 
+            this.infobox1.Location = new System.Drawing.Point(21, 62);
+            this.infobox1.Name = "infobox1";
+            this.infobox1.Size = new System.Drawing.Size(409, 263);
+            this.infobox1.TabIndex = 3;
+            this.infobox1.Text = "";
+            // 
+            // btnStart1
+            // 
+            this.btnStart1.Location = new System.Drawing.Point(360, 20);
+            this.btnStart1.Name = "btnStart1";
+            this.btnStart1.Size = new System.Drawing.Size(70, 23);
+            this.btnStart1.TabIndex = 2;
+            this.btnStart1.Text = "开始获取";
+            this.btnStart1.UseVisualStyleBackColor = true;
+            this.btnStart1.Click += new System.EventHandler(this.btnStart1_Click);
+            // 
+            // savePath1
+            // 
+            this.savePath1.Location = new System.Drawing.Point(99, 21);
+            this.savePath1.Name = "savePath1";
+            this.savePath1.Size = new System.Drawing.Size(235, 20);
+            this.savePath1.TabIndex = 1;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(18, 25);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(55, 13);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "保存位置";
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.infobox2);
@@ -118,39 +153,13 @@
             this.tabPage2.Text = "渔产品全球资讯网";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // label3
+            // infobox2
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(18, 25);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(55, 13);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "保存位置";
-            // 
-            // savePath1
-            // 
-            this.savePath1.Location = new System.Drawing.Point(99, 21);
-            this.savePath1.Name = "savePath1";
-            this.savePath1.Size = new System.Drawing.Size(235, 20);
-            this.savePath1.TabIndex = 1;
-            // 
-            // btnStart1
-            // 
-            this.btnStart1.Location = new System.Drawing.Point(360, 20);
-            this.btnStart1.Name = "btnStart1";
-            this.btnStart1.Size = new System.Drawing.Size(70, 23);
-            this.btnStart1.TabIndex = 2;
-            this.btnStart1.Text = "开始获取";
-            this.btnStart1.UseVisualStyleBackColor = true;
-            this.btnStart1.Click += new System.EventHandler(this.btnStart1_Click);
-            // 
-            // infobox1
-            // 
-            this.infobox1.Location = new System.Drawing.Point(21, 62);
-            this.infobox1.Name = "infobox1";
-            this.infobox1.Size = new System.Drawing.Size(409, 263);
-            this.infobox1.TabIndex = 3;
-            this.infobox1.Text = "";
+            this.infobox2.Location = new System.Drawing.Point(23, 66);
+            this.infobox2.Name = "infobox2";
+            this.infobox2.Size = new System.Drawing.Size(409, 258);
+            this.infobox2.TabIndex = 6;
+            this.infobox2.Text = "";
             // 
             // btnStart2
             // 
@@ -178,25 +187,17 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "保存位置";
             // 
-            // infobox2
-            // 
-            this.infobox2.Location = new System.Drawing.Point(23, 66);
-            this.infobox2.Name = "infobox2";
-            this.infobox2.Size = new System.Drawing.Size(409, 258);
-            this.infobox2.TabIndex = 6;
-            this.infobox2.Text = "";
-            // 
-            // Form1
+            // PriceCrawlerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(553, 476);
+            this.ClientSize = new System.Drawing.Size(549, 491);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dpEnd);
             this.Controls.Add(this.dpStart);
-            this.Name = "Form1";
+            this.Name = "PriceCrawlerForm";
             this.Text = "水产品价格";
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);

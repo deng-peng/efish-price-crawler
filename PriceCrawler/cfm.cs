@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using CsvHelper;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace PriceCrawler
 {
-    public partial class Form1
+    public partial class PriceCrawlerForm
     {
         Dictionary<int, string> _cfmMarketDict;
 
@@ -23,6 +25,8 @@ namespace PriceCrawler
             "__EVENTTARGET=&__EVENTARGUMENT=&__LASTFOCUS=&__VIEWSTATE={0}&DropDownList1={1}&ddlDate={2}&btnQuery=%B2%E9%D1%AF&__EVENTVALIDATION={3}";
         void CfmStart()
         {
+
+
             _cfmMarketDict = new Dictionary<int, string>
             {
                 {29, "中国舟山国际水产城"},
@@ -81,7 +85,8 @@ namespace PriceCrawler
                 logindoc.Load(reader);
                 string viewState =
                     logindoc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"].Value;
-                string eventValidation = logindoc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"].Value;
+                string eventValidation =
+                    logindoc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"].Value;
 
                 // 将文本转换成 URL 编码字符串
                 viewState = System.Web.HttpUtility.UrlEncode(viewState);
@@ -114,7 +119,7 @@ namespace PriceCrawler
                 {
                     try
                     {
-                        CfmInfo(string.Format("开始获取{0}的信息/", market.Value));
+                        CfmInfo(string.Format("开始获取{0}的价格/", market.Value));
                         //请求market数据
                         request = WebRequest.Create(string.Format(CfmDataUrl, market.Key)) as HttpWebRequest;
                         request.Method = "GET";
@@ -132,14 +137,21 @@ namespace PriceCrawler
                         List<string> dateList = new List<string>();
                         foreach (var option in dateOptions)
                         {
-                            dateList.Add(option.Attributes["value"].Value);
+                            var s = option.Attributes["value"].Value;
+                            if (!IsInDateSpan(s))
+                                continue;
+                            dateList.Add(s);
                         }
                         foreach (var datestring in dateList)
                         {
-                            CfmInfo(string.Format("开始获取{0}的信息/", datestring));
+                            CfmInfo(string.Format("开始获取{0}的价格/", datestring));
 
-                            viewState = doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"].Value;
-                            eventValidation = doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"].Value;
+                            viewState =
+                                doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"]
+                                    .Value;
+                            eventValidation =
+                                doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"
+                                    ].Value;
                             viewState = System.Web.HttpUtility.UrlEncode(viewState);
                             eventValidation = System.Web.HttpUtility.UrlEncode(eventValidation);
                             request.Method = "POST";
@@ -162,8 +174,12 @@ namespace PriceCrawler
                             reader = new System.IO.StreamReader(responseStream, Encoding.GetEncoding("GB2312"));
                             string dataHtml = reader.ReadToEnd();
                             doc.LoadHtml(dataHtml);
-                            viewState = doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"].Value;
-                            eventValidation = doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"].Value;
+                            viewState =
+                                doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"]
+                                    .Value;
+                            eventValidation =
+                                doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"
+                                    ].Value;
                             //string save = doc.DocumentNode.SelectSingleNode("id('LabelSpec')").InnerHtml.Trim();
                             string save = CfmGetContentPrice(dataHtml);
                             var item = new Market();
@@ -187,11 +203,39 @@ namespace PriceCrawler
             {
                 MessageBox.Show("error");
             }
+            finally
+            {
+                cfmsw.Flush();
+                cfmsw.Close();
+                MessageBox.Show("已完成");
+            }
         }
 
-        private void ParseCfm(Market item)
+        private void ParseCfm(Market mkt)
         {
-            MessageBox.Show(item.Price);
+            var regRow = new Regex("<br>");
+            var rowlist = regRow.Split(mkt.Price);
+            var regFirstColumn = new Regex("^.*?\\s{3}\\s+");
+            var regSplit = new Regex("\\s\\s+");
+            foreach (var row in rowlist)
+            {
+                var match = regFirstColumn.Match(row.Trim());
+                var pn = match.Value.Trim();
+                string leftstring = row.Substring(match.Value.Length);
+                var item = regSplit.Split(leftstring.Trim());
+                var csv = new CsvObj
+                {
+                    MarketName = mkt.Mname,
+                    ProductName = pn,
+                    Code = "",
+                    Spec = item[0].Trim(),
+                    TopPrice = item[1].Trim(),
+                    MidPrice = item[2].Trim(),
+                    LowPrice = item[3].Trim(),
+                    Date = mkt.Mdate
+                };
+                cfmWrite.WriteRecord(csv);
+            }
         }
 
         private string CfmGetContentPrice(string dataHtml)
