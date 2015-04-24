@@ -205,8 +205,8 @@ namespace PriceCrawler
             }
             finally
             {
-                cfmsw.Flush();
-                cfmsw.Close();
+                cfmSw.Flush();
+                cfmSw.Close();
                 MessageBox.Show("已完成");
             }
         }

@@ -21,12 +21,12 @@ namespace PriceCrawler
             InitPath();
         }
 
-        private StreamWriter cfmsw;
-        private CsvWriter cfmWrite;
+        private StreamWriter cfmSw, efishSw;
+        private CsvWriter cfmWrite, efishWrite;
         private void InitPath()
         {
-            var filename1 = string.Concat(DateTime.Now.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
-            var filename2 = string.Concat(DateTime.Now.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
+            var filename1 = string.Concat("Cfm-", DateTime.Now.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
+            var filename2 = string.Concat("Efish-", DateTime.Now.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
             var path = Application.StartupPath;
             savePath1.Text = Path.Combine(path, filename1);
             savePath2.Text = Path.Combine(path, filename2);
@@ -36,6 +36,20 @@ namespace PriceCrawler
         {
             if (!CheckDate())
                 return;
+            efishSw = new StreamWriter(savePath2.Text, false, Encoding.UTF8);
+            efishWrite = new CsvWriter(efishSw);
+            var csv = new CsvObj
+            {
+                MarketName = "市场名",
+                ProductName = "产品名",
+                Code = "代码",
+                Spec = "规格",
+                TopPrice = "上价",
+                MidPrice = "中价",
+                LowPrice = "下价",
+                Date = "发布日期"
+            };
+            efishWrite.WriteRecord(csv);
             ThreadPool.QueueUserWorkItem(delegate { EfishStart(); });
         }
 
@@ -43,8 +57,8 @@ namespace PriceCrawler
         {
             if (!CheckDate())
                 return;
-            cfmsw = new StreamWriter(savePath1.Text, false, Encoding.UTF8);
-            cfmWrite = new CsvWriter(cfmsw);
+            cfmSw = new StreamWriter(savePath1.Text, false, Encoding.UTF8);
+            cfmWrite = new CsvWriter(cfmSw);
             var csv = new CsvObj
             {
                 MarketName = "市场名",
@@ -63,8 +77,10 @@ namespace PriceCrawler
         private DateTime startDate, endDate;
         private bool CheckDate()
         {
-            startDate = new DateTime(dpStart.Value.Year, dpStart.Value.Month, dpStart.Value.Day);
-            endDate = new DateTime(dpEnd.Value.Year, dpEnd.Value.Month, dpEnd.Value.Day);
+            //startDate = new DateTime(dpStart.Value.Year, dpStart.Value.Month, dpStart.Value.Day);
+            //endDate = new DateTime(dpEnd.Value.Year, dpEnd.Value.Month, dpEnd.Value.Day);
+            startDate = dpStart.Value.Date;
+            endDate = dpEnd.Value.Date;
             if (startDate > endDate)
             {
                 MessageBox.Show("开始时间不能超过结束时间");
