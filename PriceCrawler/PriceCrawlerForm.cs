@@ -57,6 +57,7 @@ namespace PriceCrawler
         {
             if (!CheckDate())
                 return;
+
             cfmSw = new StreamWriter(savePath1.Text, false, Encoding.UTF8);
             cfmWrite = new CsvWriter(cfmSw);
             var csv = new CsvObj
@@ -106,6 +107,18 @@ namespace PriceCrawler
             }
 
 
+        }
+
+        private void btnFolder1_Click(object sender, EventArgs e)
+        {
+            var path = Path.GetDirectoryName(savePath1.Text);
+            System.Diagnostics.Process.Start("explorer.exe", path);
+        }
+
+        private void btnFolder2_Click(object sender, EventArgs e)
+        {
+            var path = Path.GetDirectoryName(savePath2.Text);
+            System.Diagnostics.Process.Start("explorer.exe", path);
         }
     }
 
