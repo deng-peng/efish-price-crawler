@@ -19,6 +19,7 @@ namespace PriceCrawler
         {
             InitializeComponent();
             InitPath();
+            this.Text = this.Text +"-Ver"+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         private StreamWriter cfmSw, efishSw;

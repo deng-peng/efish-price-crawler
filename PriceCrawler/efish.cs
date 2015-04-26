@@ -58,11 +58,11 @@ namespace PriceCrawler
                 {
                     try
                     {
-                        EfishInfo(string.Format("开始获取{0}的价格/", market.Value));
+                        EfishInfo(string.Format("开始获取{0}的价格\r\n", market.Value));
 
                         for (var dt = startDate; dt < endDate.AddDays(1); dt = dt.AddDays(1))
                         {
-                            EfishInfo(string.Format("开始获取{0}的价格/", dt.ToShortDateString()));
+                            EfishInfo(string.Format("开始获取{0}的价格\r\n", dt.ToShortDateString()));
 
                             HttpWebRequest request = WebRequest.Create(EfishDataUrl) as HttpWebRequest;
                             if (ckbProxy.Checked && !string.IsNullOrEmpty(tbProxy.Text))

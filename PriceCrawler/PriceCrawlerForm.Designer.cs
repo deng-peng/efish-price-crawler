@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PriceCrawlerForm));
             this.dpStart = new System.Windows.Forms.DateTimePicker();
             this.dpEnd = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
@@ -40,13 +41,13 @@
             this.savePath1 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tbProxy = new System.Windows.Forms.TextBox();
+            this.ckbProxy = new System.Windows.Forms.CheckBox();
             this.btnFolder2 = new System.Windows.Forms.Button();
             this.infobox2 = new System.Windows.Forms.RichTextBox();
             this.btnStart2 = new System.Windows.Forms.Button();
             this.savePath2 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.ckbProxy = new System.Windows.Forms.CheckBox();
-            this.tbProxy = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -171,6 +172,24 @@
             this.tabPage2.Text = "渔产品全球资讯网";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // tbProxy
+            // 
+            this.tbProxy.Location = new System.Drawing.Point(98, 45);
+            this.tbProxy.Name = "tbProxy";
+            this.tbProxy.Size = new System.Drawing.Size(179, 20);
+            this.tbProxy.TabIndex = 8;
+            this.tbProxy.Text = "http://127.0.0.1:8118";
+            // 
+            // ckbProxy
+            // 
+            this.ckbProxy.AutoSize = true;
+            this.ckbProxy.Location = new System.Drawing.Point(23, 47);
+            this.ckbProxy.Name = "ckbProxy";
+            this.ckbProxy.Size = new System.Drawing.Size(74, 17);
+            this.ckbProxy.TabIndex = 7;
+            this.ckbProxy.Text = "使用代理";
+            this.ckbProxy.UseVisualStyleBackColor = true;
+            // 
             // btnFolder2
             // 
             this.btnFolder2.Location = new System.Drawing.Point(414, 14);
@@ -215,24 +234,6 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "保存位置";
             // 
-            // ckbProxy
-            // 
-            this.ckbProxy.AutoSize = true;
-            this.ckbProxy.Location = new System.Drawing.Point(23, 47);
-            this.ckbProxy.Name = "ckbProxy";
-            this.ckbProxy.Size = new System.Drawing.Size(74, 17);
-            this.ckbProxy.TabIndex = 7;
-            this.ckbProxy.Text = "使用代理";
-            this.ckbProxy.UseVisualStyleBackColor = true;
-            // 
-            // tbProxy
-            // 
-            this.tbProxy.Location = new System.Drawing.Point(98, 45);
-            this.tbProxy.Name = "tbProxy";
-            this.tbProxy.Size = new System.Drawing.Size(179, 20);
-            this.tbProxy.TabIndex = 8;
-            this.tbProxy.Text = "http://127.0.0.1:8118";
-            // 
             // PriceCrawlerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -243,6 +244,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dpEnd);
             this.Controls.Add(this.dpStart);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PriceCrawlerForm";
             this.Text = "水产品价格";
             this.tabControl1.ResumeLayout(false);

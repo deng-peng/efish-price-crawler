@@ -116,12 +116,12 @@ namespace PriceCrawler
                 responseStream = response.GetResponseStream();
                 //reader = new System.IO.StreamReader(responseStream, Encoding.GetEncoding("GB2312"));
                 //srcString = reader.ReadToEnd();
-                CfmInfo("登录成功/");
+                CfmInfo("登录成功\r\n");
                 foreach (var market in _cfmMarketDict)
                 {
                     try
                     {
-                        CfmInfo(string.Format("开始获取{0}的价格/", market.Value));
+                        CfmInfo(string.Format("开始获取{0}的价格\r\n", market.Value));
                         //请求market数据
                         request = WebRequest.Create(string.Format(CfmDataUrl, market.Key)) as HttpWebRequest;
                         request.Method = "GET";
@@ -146,7 +146,7 @@ namespace PriceCrawler
                         }
                         foreach (var datestring in dateList)
                         {
-                            CfmInfo(string.Format("开始获取{0}的价格/", datestring));
+                            CfmInfo(string.Format("开始获取{0}的价格\r\n", datestring));
 
                             viewState =
                                 doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"]
