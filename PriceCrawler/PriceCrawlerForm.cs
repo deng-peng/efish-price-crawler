@@ -18,16 +18,15 @@ namespace PriceCrawler
         public PriceCrawlerForm()
         {
             InitializeComponent();
-            InitPath();
-            this.Text = this.Text +"-Ver"+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            this.Text = this.Text + "-Ver" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         private StreamWriter cfmSw, efishSw;
         private CsvWriter cfmWrite, efishWrite;
         private void InitPath()
         {
-            var filename1 = string.Concat("Cfm-", DateTime.Now.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
-            var filename2 = string.Concat("Efish-", DateTime.Now.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
+            var filename1 = string.Concat("Cfm-", startDate.ToString("yyyyMMdd"), "-", endDate.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
+            var filename2 = string.Concat("Efish-", startDate.ToString("yyyyMMdd"), "-", endDate.ToString("yyyyMMdd"), "-", new Random().Next(1000, 9999), ".csv");
             var path = Application.StartupPath;
             savePath1.Text = Path.Combine(path, filename1);
             savePath2.Text = Path.Combine(path, filename2);
@@ -37,9 +36,9 @@ namespace PriceCrawler
         {
             if (!CheckDate())
                 return;
-            efishSw = new StreamWriter(savePath2.Text, false, Encoding.UTF8);
+            efishSw = new StreamWriter(savePath2.Text, false, Encoding.GetEncoding(936));
             efishWrite = new CsvWriter(efishSw);
-            var csv = new CsvObj
+            var csv = new EfishObj
             {
                 MarketName = "市场名",
                 ProductName = "产品名",
@@ -48,7 +47,11 @@ namespace PriceCrawler
                 TopPrice = "上价",
                 MidPrice = "中价",
                 LowPrice = "下价",
-                Date = "发布日期"
+                Date = "发布日期",
+                TradeVolume = "交易量",
+                TradeChange = "交易量涨跌",
+                AveragePrice = "平均价",
+                AveragePriceChange = "平均价涨跌"
             };
             efishWrite.WriteRecord(csv);
             ThreadPool.QueueUserWorkItem(delegate { EfishStart(); });
@@ -59,7 +62,7 @@ namespace PriceCrawler
             if (!CheckDate())
                 return;
 
-            cfmSw = new StreamWriter(savePath1.Text, false, Encoding.UTF8);
+            cfmSw = new StreamWriter(savePath1.Text, false, Encoding.GetEncoding(936));
             cfmWrite = new CsvWriter(cfmSw);
             var csv = new CsvObj
             {
@@ -89,6 +92,8 @@ namespace PriceCrawler
                 return false;
             }
 
+            InitPath();
+
             return true;
         }
 
@@ -101,9 +106,9 @@ namespace PriceCrawler
                     return false;
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                MessageBox.Show(ex.ToString());
                 return false;
             }
 
@@ -120,6 +125,12 @@ namespace PriceCrawler
         {
             var path = Path.GetDirectoryName(savePath2.Text);
             System.Diagnostics.Process.Start("explorer.exe", path);
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            infobox1.Text = "";
+            infobox2.Text = "";
         }
     }
 
@@ -148,4 +159,12 @@ public class CsvObj
     public string MidPrice { get; set; }
     public string LowPrice { get; set; }
     public string Date { get; set; }
+}
+
+public class EfishObj : CsvObj
+{
+    public string TradeVolume { get; set; }
+    public string TradeChange { get; set; }
+    public string AveragePrice { get; set; }
+    public string AveragePriceChange { get; set; }
 }

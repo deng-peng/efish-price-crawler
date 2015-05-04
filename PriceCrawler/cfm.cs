@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using CsvHelper;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
@@ -67,6 +68,7 @@ namespace PriceCrawler
 #endif
             };
 
+            //catch all
             try
             {
                 CfmInfo("开始登录/");
@@ -119,6 +121,7 @@ namespace PriceCrawler
                 CfmInfo("登录成功\r\n");
                 foreach (var market in _cfmMarketDict)
                 {
+                    //catch market
                     try
                     {
                         CfmInfo(string.Format("开始获取{0}的价格\r\n", market.Value));
@@ -144,54 +147,68 @@ namespace PriceCrawler
                                 continue;
                             dateList.Add(s);
                         }
+                        dateList.Reverse();
                         foreach (var datestring in dateList)
                         {
-                            CfmInfo(string.Format("开始获取{0}的价格\r\n", datestring));
+                            //catch day
+                            try
+                            {
+                                CfmInfo(string.Format("开始获取{0}的价格\r\n", datestring));
 
-                            viewState =
-                                doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"]
-                                    .Value;
-                            eventValidation =
-                                doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"
-                                    ].Value;
-                            viewState = System.Web.HttpUtility.UrlEncode(viewState);
-                            eventValidation = System.Web.HttpUtility.UrlEncode(eventValidation);
-                            request.Method = "POST";
-                            //提交某天的查询
-                            postString = string.Format(CfmDataBody, viewState, market.Key, datestring, eventValidation);
-                            postData = Encoding.ASCII.GetBytes(postString);
-                            request = WebRequest.Create(string.Format(CfmDataUrl, market.Key)) as HttpWebRequest;
-                            request.Method = "POST";
-                            request.KeepAlive = false;
-                            request.ContentType = "application/x-www-form-urlencoded";
-                            request.CookieContainer = cookieContainer;
-                            request.ContentLength = postData.Length;
-                            outputStream = request.GetRequestStream();
-                            outputStream.Write(postData, 0, postData.Length);
-                            outputStream.Close();
+                                viewState =
+                                    doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"]
+                                        .Value;
+                                eventValidation =
+                                    doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"
+                                        ].Value;
+                                viewState = System.Web.HttpUtility.UrlEncode(viewState);
+                                eventValidation = System.Web.HttpUtility.UrlEncode(eventValidation);
+                                request.Method = "POST";
+                                //提交某天的查询
+                                postString = string.Format(CfmDataBody, viewState, market.Key, datestring, eventValidation);
+                                postData = Encoding.ASCII.GetBytes(postString);
+                                request = WebRequest.Create(string.Format(CfmDataUrl, market.Key)) as HttpWebRequest;
+                                request.Method = "POST";
+                                request.KeepAlive = false;
+                                request.ContentType = "application/x-www-form-urlencoded";
+                                request.CookieContainer = cookieContainer;
+                                request.ContentLength = postData.Length;
+                                //可能出异常
+                                outputStream = request.GetRequestStream();
+                                outputStream.Write(postData, 0, postData.Length);
+                                outputStream.Close();
 
-                            // 某天的返回
-                            response = request.GetResponse() as HttpWebResponse;
-                            responseStream = response.GetResponseStream();
-                            reader = new System.IO.StreamReader(responseStream, Encoding.GetEncoding("GB2312"));
-                            string dataHtml = reader.ReadToEnd();
-                            doc.LoadHtml(dataHtml);
-                            viewState =
-                                doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"].Value;
-                            eventValidation =
-                                doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"].Value;
-                            //string save = doc.DocumentNode.SelectSingleNode("id('LabelSpec')").InnerHtml.Trim();
-                            string save = CfmGetContentPrice(dataHtml);
-                            var item = new Market();
-                            item.Mid = market.Key;
-                            item.Mname = market.Value;
-                            item.Mdate = datestring;
-                            item.Price = save;
-                            ParseCfm(item);
+                                // 某天的返回
+                                response = request.GetResponse() as HttpWebResponse;
+                                responseStream = response.GetResponseStream();
+                                reader = new System.IO.StreamReader(responseStream, Encoding.GetEncoding("GB2312"));
+                                string dataHtml = reader.ReadToEnd();
+                                doc.LoadHtml(dataHtml);
+                                viewState =
+                                    doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"].Value;
+                                eventValidation =
+                                    doc.DocumentNode.SelectSingleNode("//input[@id='__EVENTVALIDATION']").Attributes["value"].Value;
+                                //string save = doc.DocumentNode.SelectSingleNode("id('LabelSpec')").InnerHtml.Trim();
+                                string save = CfmGetContentPrice(dataHtml);
+                                if (save.Length < 10)
+                                    continue;
+                                var item = new Market();
+                                item.Mid = market.Key;
+                                item.Mname = market.Value;
+                                item.Mdate = datestring;
+                                item.Price = save;
+                                ParseCfm(item);
+                                Thread.Sleep(100);
+                            }
+                            catch (Exception ex)
+                            {
+                                CfmInfo(ex.ToString() + "\r\n");
+                            }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        CfmInfo(ex.ToString() + "\r\n");
                     }
                 }
                 CfmInfo("已完成");
@@ -200,7 +217,7 @@ namespace PriceCrawler
 
             catch (Exception ex)
             {
-                MessageBox.Show("error");
+                CfmInfo(ex.ToString() + "\r\n");
             }
             finally
             {

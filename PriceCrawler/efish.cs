@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
@@ -51,47 +52,49 @@ namespace PriceCrawler
                 {"F950","花蓮"}
 #endif
             };
-
+            //catch all
             try
             {
                 foreach (var market in _efishMarketDict)
                 {
+                    //catch market
                     try
                     {
                         EfishInfo(string.Format("开始获取{0}的价格\r\n", market.Value));
 
                         for (var dt = startDate; dt < endDate.AddDays(1); dt = dt.AddDays(1))
                         {
-                            EfishInfo(string.Format("开始获取{0}的价格\r\n", dt.ToShortDateString()));
-
-                            HttpWebRequest request = WebRequest.Create(EfishDataUrl) as HttpWebRequest;
-                            if (ckbProxy.Checked && !string.IsNullOrEmpty(tbProxy.Text))
+                            //catch day
+                            try
                             {
-                                var proxy = new WebProxy(new Uri(tbProxy.Text.Trim()));
-                                request.Proxy = proxy;
-                            }
-                            request.Method = "POST";
-                            request.Referer = EfishDataUrl;
+                                EfishInfo(string.Format("开始获取{0}的价格\r\n", dt.ToShortDateString()));
 
-                            //"dateStr=104.4.12&calendarType=tw&year=104&month=4&day=12&mid=F109&numbers=999&orderby=w"
-                            string postString = string.Format(EfishDataBody, GetMingDate(dt), dt.Year - 1911, dt.Month, dt.Day, market.Key);
-                            byte[] postData = Encoding.ASCII.GetBytes(postString);
-                            request.KeepAlive = true;
-                            request.ContentType = "application/x-www-form-urlencoded";
-                            request.ContentLength = postData.Length;
-
-                            byte[] bytesReq = Encoding.UTF8.GetBytes(postString);
-
-                            using (Stream reqStream = request.GetRequestStream())
-                            {
-                                reqStream.Write(bytesReq, 0, bytesReq.Length);
-                            }
-
-                            using (var response = request.GetResponse() as HttpWebResponse)
-                            {
-                                using (var instream = response.GetResponseStream())
+                                HttpWebRequest request = WebRequest.Create(EfishDataUrl) as HttpWebRequest;
+                                if (ckbProxy.Checked && !string.IsNullOrEmpty(tbProxy.Text))
                                 {
-                                    try
+                                    var proxy = new WebProxy(new Uri(tbProxy.Text.Trim()));
+                                    request.Proxy = proxy;
+                                }
+                                request.Method = "POST";
+                                request.Referer = EfishDataUrl;
+
+                                //"dateStr=104.4.12&calendarType=tw&year=104&month=4&day=12&mid=F109&numbers=999&orderby=w"
+                                string postString = string.Format(EfishDataBody, GetMingDate(dt), dt.Year - 1911, dt.Month, dt.Day, market.Key);
+                                byte[] postData = Encoding.ASCII.GetBytes(postString);
+                                request.KeepAlive = true;
+                                request.ContentType = "application/x-www-form-urlencoded";
+                                request.ContentLength = postData.Length;
+
+                                byte[] bytesReq = Encoding.UTF8.GetBytes(postString);
+
+                                using (Stream reqStream = request.GetRequestStream())
+                                {
+                                    reqStream.Write(bytesReq, 0, bytesReq.Length);
+                                }
+
+                                using (var response = request.GetResponse() as HttpWebResponse)
+                                {
+                                    using (var instream = response.GetResponseStream())
                                     {
                                         HtmlDocument doc = new HtmlDocument();
                                         doc.Load(instream, Encoding.UTF8);
@@ -99,32 +102,39 @@ namespace PriceCrawler
                                         foreach (var row in rows)
                                         {
                                             var cols = row.SelectNodes("td");
-                                            var csv = new CsvObj
+                                            var csv = new EfishObj
                                             {
                                                 MarketName = market.Value,
-                                                ProductName = cols[1].InnerText,
-                                                Code = cols[0].InnerText,
+                                                ProductName = cols[1].InnerText.Trim(),
+                                                Code = cols[0].InnerText.Trim(),
                                                 Spec = "",
-                                                TopPrice = cols[2].InnerText,
-                                                MidPrice = cols[3].InnerText,
-                                                LowPrice = cols[4].InnerText,
-                                                Date = dt.ToShortDateString()
+                                                TopPrice = cols[2].InnerText.Trim(),
+                                                MidPrice = cols[3].InnerText.Trim(),
+                                                LowPrice = cols[4].InnerText.Trim(),
+                                                Date = dt.ToShortDateString(),
+                                                TradeVolume = cols[5].InnerText.Trim(),
+                                                TradeChange = cols[6].InnerText.Trim(),
+                                                AveragePrice = cols[7].InnerText.Trim(),
+                                                AveragePriceChange = cols[8].InnerText.Trim()
                                             };
                                             efishWrite.WriteRecord(csv);
+                                            Thread.Sleep(100);
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                    }
 
+
+                                    }
                                 }
-                            }
 
+                            }
+                            catch (Exception ex)
+                            {
+                                EfishInfo(ex.ToString() + "\r\n");
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.ToString());
+                        EfishInfo(ex.ToString() + "\r\n");
                     }
 
 
@@ -135,7 +145,7 @@ namespace PriceCrawler
 
             catch (Exception ex)
             {
-                MessageBox.Show("error");
+                EfishInfo(ex.ToString());
             }
             finally
             {
