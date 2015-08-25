@@ -153,7 +153,7 @@ namespace PriceCrawler
                             //catch day
                             try
                             {
-                                CfmInfo(string.Format("开始获取{0}的价格\r\n", datestring));
+                                CfmInfo(string.Format("开始获取{0}的价格，", datestring));
 
                                 viewState =
                                     doc.DocumentNode.SelectSingleNode("//input[@id='__VIEWSTATE']").Attributes["value"]
@@ -191,13 +191,17 @@ namespace PriceCrawler
                                 //string save = doc.DocumentNode.SelectSingleNode("id('LabelSpec')").InnerHtml.Trim();
                                 string save = CfmGetContentPrice(dataHtml);
                                 if (save.Length < 10)
+                                {
+                                    CfmInfo("无数据，跳过\r\n");
                                     continue;
+                                }
                                 var item = new Market();
                                 item.Mid = market.Key;
                                 item.Mname = market.Value;
                                 item.Mdate = datestring;
                                 item.Price = save;
                                 ParseCfm(item);
+                                CfmInfo("获取成功，写入文件\r\n");
                                 Thread.Sleep(100);
                             }
                             catch (Exception ex)
@@ -205,13 +209,14 @@ namespace PriceCrawler
                                 CfmInfo(ex.ToString() + "\r\n");
                             }
                         }
+                        CfmInfo("++++++++++++++++++++++++++++++++++++++++++++\r\n");
                     }
                     catch (Exception ex)
                     {
                         CfmInfo(ex.ToString() + "\r\n");
                     }
                 }
-                CfmInfo("已完成");
+                CfmInfo("【中国渔市】已完成");
 
             }
 
@@ -223,7 +228,7 @@ namespace PriceCrawler
             {
                 cfmSw.Flush();
                 cfmSw.Close();
-                MessageBox.Show("已完成");
+                MessageBox.Show("【中国渔市】已完成");
             }
         }
 
@@ -239,7 +244,7 @@ namespace PriceCrawler
                 var pn = match.Value.Trim();
                 string leftstring = row.Substring(match.Value.Length);
                 var item = regSplit.Split(leftstring.Trim());
-                var csv = new CsvObj
+                var csv = new CfmObj
                 {
                     MarketName = mkt.Mname,
                     ProductName = pn,

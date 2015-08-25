@@ -43,7 +43,6 @@ namespace PriceCrawler
                 MarketName = "市场名",
                 ProductName = "产品名",
                 Code = "代码",
-                Spec = "规格",
                 TopPrice = "上价",
                 MidPrice = "中价",
                 LowPrice = "下价",
@@ -51,7 +50,8 @@ namespace PriceCrawler
                 TradeVolume = "交易量",
                 TradeChange = "交易量涨跌",
                 AveragePrice = "平均价",
-                AveragePriceChange = "平均价涨跌"
+                AveragePriceChange = "平均价涨跌",
+                Weather = "天气"
             };
             efishWrite.WriteRecord(csv);
             ThreadPool.QueueUserWorkItem(delegate { EfishStart(); });
@@ -64,7 +64,7 @@ namespace PriceCrawler
 
             cfmSw = new StreamWriter(savePath1.Text, false, Encoding.GetEncoding(936));
             cfmWrite = new CsvWriter(cfmSw);
-            var csv = new CsvObj
+            var csv = new CfmObj
             {
                 MarketName = "市场名",
                 ProductName = "产品名",
@@ -149,7 +149,7 @@ public class Market
     //public string CrawlTime { get; set; }
 }
 
-public class CsvObj
+public class CfmObj
 {
     public string MarketName { get; set; }
     public string ProductName { get; set; }
@@ -161,10 +161,18 @@ public class CsvObj
     public string Date { get; set; }
 }
 
-public class EfishObj : CsvObj
+public class EfishObj
 {
+    public string MarketName { get; set; }
+    public string ProductName { get; set; }
+    public string Code { get; set; }
+    public string TopPrice { get; set; }
+    public string MidPrice { get; set; }
+    public string LowPrice { get; set; }
+    public string Date { get; set; }
     public string TradeVolume { get; set; }
     public string TradeChange { get; set; }
     public string AveragePrice { get; set; }
     public string AveragePriceChange { get; set; }
+    public string Weather { get; set; }
 }

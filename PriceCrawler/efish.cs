@@ -67,7 +67,7 @@ namespace PriceCrawler
                             //catch day
                             try
                             {
-                                EfishInfo(string.Format("开始获取{0}的价格\r\n", dt.ToShortDateString()));
+                                EfishInfo(string.Format("开始获取{0}的价格，", dt.ToShortDateString()));
 
                                 HttpWebRequest request = WebRequest.Create(EfishDataUrl) as HttpWebRequest;
                                 if (ckbProxy.Checked && !string.IsNullOrEmpty(tbProxy.Text))
@@ -99,38 +99,54 @@ namespace PriceCrawler
                                         HtmlDocument doc = new HtmlDocument();
                                         doc.Load(instream, Encoding.UTF8);
                                         var rows = doc.DocumentNode.SelectNodes("id('ltable')/tbody[1]/tr");
-                                        foreach (var row in rows)
+
+                                        if (rows != null)
                                         {
-                                            var cols = row.SelectNodes("td");
-                                            var csv = new EfishObj
+                                            foreach (var row in rows)
                                             {
-                                                MarketName = market.Value,
-                                                ProductName = cols[1].InnerText.Trim(),
-                                                Code = cols[0].InnerText.Trim(),
-                                                Spec = "",
-                                                TopPrice = cols[2].InnerText.Trim(),
-                                                MidPrice = cols[3].InnerText.Trim(),
-                                                LowPrice = cols[4].InnerText.Trim(),
-                                                Date = dt.ToShortDateString(),
-                                                TradeVolume = cols[5].InnerText.Trim(),
-                                                TradeChange = cols[6].InnerText.Trim(),
-                                                AveragePrice = cols[7].InnerText.Trim(),
-                                                AveragePriceChange = cols[8].InnerText.Trim()
-                                            };
-                                            efishWrite.WriteRecord(csv);
+                                                var weatherNode = doc.DocumentNode.SelectSingleNode("//table[@class='text'][3]/tr[2]/td");
+                                                string weather = "";
+                                                if (weatherNode != null)
+                                                {
+                                                    var res = weatherNode.InnerText.Split('：');
+                                                    if (res.Length >= 2)
+                                                        weather = res[1].Trim();
+                                                }
+                                                var cols = row.SelectNodes("td");
+                                                var csv = new EfishObj
+                                                {
+                                                    MarketName = string.Concat(market.Key, " ", market.Value),
+                                                    ProductName = cols[1].InnerText.Trim(),
+                                                    Code = cols[0].InnerText.Trim(),
+                                                    TopPrice = cols[2].InnerText.Trim(),
+                                                    MidPrice = cols[3].InnerText.Trim(),
+                                                    LowPrice = cols[4].InnerText.Trim(),
+                                                    Date = dt.ToString("yyyy-MM-dd"),
+                                                    TradeVolume = cols[5].InnerText.Trim(),
+                                                    TradeChange = cols[6].InnerText.Trim(),
+                                                    AveragePrice = cols[7].InnerText.Trim(),
+                                                    AveragePriceChange = cols[8].InnerText.Trim(),
+                                                    Weather = weather
+                                                };
+                                                efishWrite.WriteRecord(csv);
+                                            }
+                                            EfishInfo("获取成功，写入文件\r\n");
                                             Thread.Sleep(100);
                                         }
-
+                                        else
+                                        {
+                                            EfishInfo("无数据，跳过\r\n");
+                                        }
 
                                     }
                                 }
-
                             }
                             catch (Exception ex)
                             {
                                 EfishInfo(ex.ToString() + "\r\n");
                             }
                         }
+                        EfishInfo("++++++++++++++++++++++++++++++++++++++++++++\r\n");
                     }
                     catch (Exception ex)
                     {
@@ -139,7 +155,7 @@ namespace PriceCrawler
 
 
                 }
-                EfishInfo("已完成");
+                EfishInfo("【渔产品全球资讯网】已完成");
 
             }
 
@@ -151,7 +167,7 @@ namespace PriceCrawler
             {
                 efishSw.Flush();
                 efishSw.Close();
-                MessageBox.Show("已完成");
+                MessageBox.Show("【渔产品全球资讯网】已完成");
             }
         }
 
